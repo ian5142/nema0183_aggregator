@@ -45,11 +45,11 @@ public class serialReader {
      * port
      */
     protected ArrayList<String> findPort() {
-        System.out.println("List of COM ports:");
+//        System.out.println("List of COM ports:");
         String[] portNames = SerialPortList.getPortNames();
         ArrayList<String> portList = new ArrayList<>();
         for (String portName1 : portNames) {
-            System.out.println(portName1);
+//            System.out.println(portName1);
             portList.add(portName1);
         }
 //        
