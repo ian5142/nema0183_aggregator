@@ -16,6 +16,9 @@ public class Nema0183_aggregator {
      */
     public static void main(String[] args) {
         // TODO code application logic here
+        serialReader reader1 = new serialReader();
+        String ports = reader1.findPort();
+        System.out.println("Ports: " + ports);
     }
     
 }
