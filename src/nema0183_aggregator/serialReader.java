@@ -5,6 +5,7 @@
  */
 package nema0183_aggregator;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 import jssc.*; // Java Simple Serial Connector, the library that contains the serial methods
 import static nema0183_aggregator.serialReader.serialPort;
@@ -43,23 +44,25 @@ public class serialReader {
      * @return The serial port name in String format, used to open and close the
      * port
      */
-    protected String findPort() {
+    protected ArrayList<String> findPort() {
         System.out.println("List of COM ports:");
         String[] portNames = SerialPortList.getPortNames();
+        ArrayList<String> portList = new ArrayList<>();
         for (String portName1 : portNames) {
             System.out.println(portName1);
+            portList.add(portName1);
         }
-        
-        System.out.println("What COM port are you using?");
-        System.out.println("Please type it in how it appears above.");
-        Scanner sc = new Scanner(System.in);
-        String port = "";
-        if (sc.hasNext()) {
-            port = sc.next();
-        } else {
-
-        }
-        return port;
+//        
+//        System.out.println("What COM port are you using?");
+//        System.out.println("Please type it in how it appears above.");
+//        Scanner sc = new Scanner(System.in);
+//        String port = "";
+//        if (sc.hasNext()) {
+//            port = sc.next();
+//        } else {
+//
+//        }
+        return portList;
     }
 }
 
