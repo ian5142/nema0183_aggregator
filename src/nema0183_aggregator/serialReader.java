@@ -43,7 +43,7 @@ public class serialReader {
      * @return The serial port name in String format, used to open and close the
      * port
      */
-    private String findPort() {
+    protected String findPort() {
         System.out.println("List of COM ports:");
         String[] portNames = SerialPortList.getPortNames();
         for (String portName1 : portNames) {
