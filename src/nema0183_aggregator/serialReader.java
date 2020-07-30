@@ -5,6 +5,7 @@
  */
 package nema0183_aggregator;
 
+import java.util.Scanner;
 import jssc.*; // Java Simple Serial Connector, the library that contains the serial methods
 import static nema0183_aggregator.serialReader.serialPort;
 
@@ -21,6 +22,7 @@ public class serialReader {
     Boolean receivingMessage;
     SerialPortReader reader;
     String readLine;
+    Boolean acknowledge;
 
     public serialReader() {
         portName = "/dev/ttyUSB0";
@@ -29,6 +31,35 @@ public class serialReader {
         receivingMessage = false;
         reader = new SerialPortReader();
         readLine = "";
+        acknowledge = false;
+    }
+
+    /**
+     * Finds the serial port to be used, in Windows type COM1, for example In
+     * Linux, type /dev/pts/3 for example. The custom USB-RS232 device, using a
+     * MCP2200, is on /dev/ttyACM0/
+     * All serial ports may not be listed.
+     *
+     * @return The serial port name in String format, used to open and close the
+     * port
+     */
+    private String findPort() {
+        System.out.println("List of COM ports:");
+        String[] portNames = SerialPortList.getPortNames();
+        for (String portName1 : portNames) {
+            System.out.println(portName1);
+        }
+        
+        System.out.println("What COM port are you using?");
+        System.out.println("Please type it in how it appears above.");
+        Scanner sc = new Scanner(System.in);
+        String port = "";
+        if (sc.hasNext()) {
+            port = sc.next();
+        } else {
+
+        }
+        return port;
     }
 }
 
@@ -48,18 +79,18 @@ class SerialPortReader implements SerialPortEventListener {
      */
     @Override
     public void serialEvent(SerialPortEvent event) {
-        boolean acknowledge;
+        boolean acknowledge2;
         if (event.isRXCHAR() && event.getEventValue() == 10) {
             try {
                 String line = serialPort.readString(event.getEventValue());
 //                    acknowledgeStr + acknowledgeStr + 
                 System.out.println("serialEvent: " + line);
                 if (line.contains((char) 0x6 + "")) {
-                    acknowledge = true;
+                    acknowledge2 = true;
                     System.out.println("Acknowledged");
 
                 } else {
-                    acknowledge = false;
+                    acknowledge2 = false;
                 }
 //                    System.out.println("Received response: " + readLine);
 
