@@ -18,7 +18,7 @@ public class Nema0183_aggregator {
      */
     public static void main(String[] args) {
         // TODO code application logic here
-        serialReader reader1 = new serialReader();
+        RS232Control reader1 = new RS232Control();
         ArrayList<String> portList = reader1.findPort();
         
         System.out.println("Ports: ");
