@@ -28,7 +28,7 @@ public class RS232Control {
     Boolean acknowledge;
     int baud;    
 
-    public RS232Control(int portbaud, String portNum) {
+    public RS232Control(String portNum, int portbaud) {
         portName = portNum;
         baud = portbaud;
         serialPort = new SerialPort(portName);
