@@ -26,9 +26,21 @@ public class RS232Control {
     SerialPortReader reader;
     String readLine;
     Boolean acknowledge;
-    int baud;    
+    int baud;
+    boolean gpsData;
+    NEMADateUpdate gpsUpdate;
 
-    public RS232Control(String portNum, int portbaud) {
+    /**
+     * 
+     * @param portNum
+     * @param portbaud
+     * @param gps 
+     */
+    public RS232Control(String portNum, int portbaud, boolean gps) {
+        gpsData = gps;
+        if (gpsData == true) {
+            gpsUpdate = new NEMADateUpdate ();
+        }
         portName = portNum;
         baud = portbaud;
         serialPort = new SerialPort(portName);
@@ -152,6 +164,9 @@ public class RS232Control {
         
         catch (SerialPortException ex) {
             Logger.getLogger(RS232Control.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        if (gpsData == true) {
+            readArray = gpsUpdate.dateUpdate(readArray);
         }
         return readArray;
     }
