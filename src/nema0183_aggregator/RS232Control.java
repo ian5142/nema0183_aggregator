@@ -175,6 +175,26 @@ public class RS232Control {
         }
         return success;
     }
+    
+    /**
+     * Writes the String message to the serial port
+     *
+     * @param message The string to write to the serial port
+     * @return Returns true if the write was successful
+     */
+    protected boolean testWrite(byte [] message) {
+        boolean success = false;
+        
+        try {
+            openP();
+            serialPort.writeBytes(message);
+            success = true;
+//            serialPort.closePort();
+        } catch (SerialPortException ex) {
+            Logger.getLogger(RS232Control.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return success;
+    }
 } // End of RS232Control class
 
 /**
