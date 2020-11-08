@@ -26,9 +26,11 @@ public class RS232Control {
     SerialPortReader reader;
     String readLine;
     Boolean acknowledge;
+    int baud;    
 
-    public RS232Control() {
-        portName = "";
+    public RS232Control(int portbaud, String portNum) {
+        portName = portNum;
+        baud = portbaud;
         serialPort = new SerialPort(portName);
         message = new StringBuilder();
         receivingMessage = false;
@@ -54,6 +56,13 @@ public class RS232Control {
 //            System.out.println(portName1);
             portList.add(portName1);
         }
+//        System.out.println(SerialPort.BAUDRATE_9600 + "");
+//        
+//        System.out.println(SerialPort.BAUDRATE_4800 + "");
+//        
+//        System.out.println(SerialPort.BAUDRATE_38400 + "");
+//        
+//        System.out.println(SerialPort.BAUDRATE_115200 + "");
 //        
 //        System.out.println("What COM port are you using?");
 //        System.out.println("Please type it in how it appears above.");
@@ -89,13 +98,13 @@ public class RS232Control {
     }
     
     /**
-     * Opens a COM port at the specified settings (9600 8N1)
+     * Opens a COM port at the specified settings (baudrate 8N1)
      * Can throw an error opening the port
      */
     private void openP() {
         try {
             serialPort.openPort();
-            serialPort.setParams(SerialPort.BAUDRATE_9600,
+            serialPort.setParams(baud,
                     SerialPort.DATABITS_8,
                     SerialPort.STOPBITS_1,
                     SerialPort.PARITY_NONE);
@@ -202,5 +211,14 @@ class SerialPortReader implements SerialPortEventListener {
                 System.out.println("Error in receiving string from COM-port: " + ex);
             }
         }
+    }
+    
+    /**
+     * Prints out the message read from the serial port
+     *
+     * @param message
+     */
+    protected void processMessage(String message) {
+//        System.out.println(message);
     }
 }
