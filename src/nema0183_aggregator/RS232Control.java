@@ -29,6 +29,7 @@ public class RS232Control {
     int baud;
     boolean gpsData;
     NEMADateUpdate gpsUpdate;
+    String lineSep;
 
     /**
      * 
@@ -49,6 +50,8 @@ public class RS232Control {
         reader = new SerialPortReader();
         readLine = "";
         acknowledge = false;
+        lineSep = System.getProperty("line.separator");
+        openP();
     }
 
     /**
@@ -109,6 +112,24 @@ public class RS232Control {
         return connected;
     }
     
+    protected void changePort (String portNum, int portbaud, boolean gps) {
+        close();
+        gpsData = gps;
+        if (gpsData == true) {
+            gpsUpdate = new NEMADateUpdate ();
+        }
+        portName = portNum;
+        baud = portbaud;
+        serialPort = new SerialPort(portName);
+        message = new StringBuilder();
+        receivingMessage = false;
+        reader = new SerialPortReader();
+        readLine = "";
+        acknowledge = false;
+        lineSep = System.getProperty("line.separator");
+        openP();
+    }
+    
     /**
      * Opens a COM port at the specified settings (baudrate 8N1)
      * Can throw an error opening the port
@@ -129,6 +150,7 @@ public class RS232Control {
             serialPort.setDTR(false);
             acknowledge = true;
         } catch (SerialPortException ex) {
+            Logger.getLogger(RS232Control.class.getName()).log(Level.SEVERE, null, ex);
             System.out.println("There is an error opening port т: " + ex);
         }
     }
@@ -157,18 +179,50 @@ public class RS232Control {
      */
     protected byte [] testRead() {
         byte [] readArray = null;
-        try {
-            readArray = serialPort.readBytes(9);
-            serialPort.closePort();
-        } 
+        ArrayList <byte []> readList = new ArrayList <byte []> ();
+        for (int i = 0; i < 100; i++) {
+            byte [] tempArray = null;
+            try {
+                readList.add(serialPort.readBytes(10) );
+            } catch (SerialPortException ex) {
+                Logger.getLogger(RS232Control.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         
-        catch (SerialPortException ex) {
-            Logger.getLogger(RS232Control.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        if (gpsData == true) {
-            readArray = gpsUpdate.dateUpdate(readArray);
-        }
+        String line = new String (readArray);
+        System.out.println(line);
+//        if (gpsData == true) {
+//            readArray = gpsUpdate.dateUpdate(readArray);
+//        }
         return readArray;
+    }
+    
+    /**
+     * Opens the serial port. Tries to read a string from the serial port.
+     * Closes the serial port.
+     *
+     * @return Returns the byte array read from the serial port.
+     */
+    protected String testRead2() {
+        String line = "";
+        ArrayList <String> readList = new ArrayList <String> ();
+        boolean lineFin = false;
+        for (int i = 0; i < 100 && (!lineFin); i++) {
+            try {
+                //            byte [] tempArray = null;
+                //                readList.add(serialPort.readBytes(8) );
+                line =  line + serialPort.readString(1);
+            } catch (SerialPortException ex) {
+                Logger.getLogger(RS232Control.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            if (line.endsWith(lineSep)) {
+                lineFin = true;
+            }
+        if (gpsData == true) {
+            line = gpsUpdate.dateUpdate(line);
+        }
+    }
+        return line;
     }
     
     /**
@@ -181,9 +235,10 @@ public class RS232Control {
         boolean success = false;
         
         try {
-            openP();
-            serialPort.writeString(message);
-            success = true;
+//            openP();
+            if ( (!message.isBlank() ) && message.startsWith("$") ) {
+                success = serialPort.writeString(message);
+            }
 //            serialPort.closePort();
         } catch (SerialPortException ex) {
             Logger.getLogger(RS232Control.class.getName()).log(Level.SEVERE, null, ex);
@@ -201,7 +256,7 @@ public class RS232Control {
         boolean success = false;
         
         try {
-            openP();
+//            openP();
             serialPort.writeBytes(message);
             success = true;
 //            serialPort.closePort();
@@ -230,7 +285,8 @@ class SerialPortReader implements SerialPortEventListener {
     public void serialEvent(SerialPortEvent event) {
         if (event.isRXCHAR() && event.getEventValue() == 10) {
             try {
-                String line = serialPort.readString(event.getEventValue());
+//                String line = serialPort.readString(event.getEventValue());
+                byte buffer[] = serialPort.readBytes(10);
 //                    acknowledgeStr + acknowledgeStr + 
 //                System.out.println("serialEvent: " + line);
 //                if (line.contains((char) 0x6 + "")) {
