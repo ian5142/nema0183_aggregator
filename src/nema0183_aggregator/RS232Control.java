@@ -203,7 +203,7 @@ public class RS232Control {
      *
      * @return Returns the byte array read from the serial port.
      */
-    protected String testRead2() {
+    protected synchronized String testRead2() {
         String line = "";
         ArrayList <String> readList = new ArrayList <String> ();
         boolean lineFin = false;
