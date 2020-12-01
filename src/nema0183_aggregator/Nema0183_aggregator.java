@@ -6,6 +6,9 @@
 package nema0183_aggregator;
 
 import java.util.ArrayDeque;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,48 +26,99 @@ public class Nema0183_aggregator {
      */
     public static void main(String[] args) {
         // TODO code application logic here
-        ArrayDeque <String> sentences = new ArrayDeque <String> ();
+        ArrayDeque <String> gpsSentences = new ArrayDeque <String> ();
+        ArrayDeque <String> aisSentences = new ArrayDeque <String> ();
+        ArrayDeque <String> headingSentences = new ArrayDeque <String> ();
+        ArrayDeque <String> sounderSentences = new ArrayDeque <String> ();
+        ArrayDeque <String> outputSentences = new ArrayDeque <String> ();
 //        ArrayList <RS232Control> devices = new ArrayList<RS232Control> (5);
         RS232Control gps = new RS232Control("COM32", 4800, true);
-//        RS232Control ais = new RS232Control("COM35", 34800, false);
-//        RS232Control heading = new RS232Control("COM37", 4800, false);
-//        RS232Control sounder = new RS232Control("COM39", 4800, false);
-//        RS232Control output = new RS232Control("COM41", 115200, false);
+        RS232Control ais = new RS232Control("COM35", 34800, false);
+        RS232Control heading = new RS232Control("COM37", 4800, false);
+        RS232Control sounder = new RS232Control("COM39", 4800, false);
+        RS232Control output = new RS232Control("COM41", 115200, false);
+        
+        ExecutorService executor = Executors.newCachedThreadPool();
+        
+//        Runnable gpsRun = () -> {
+//            gpsSentences.add(gps.testRead2());
+//        };
+//        executor.submit(gpsRun);
+        executor.submit(() -> {
+            gpsSentences.add(gps.testRead2());
+        });
+         
+//        Runnable aisRun = () -> {
+//            aisSentences.add(ais.testRead2());
+//        };
+//        executor.submit(aisRun);
+//        
+//        Runnable headingRun = () -> {
+//            headingSentences.add(heading.testRead2());
+//        };
+//        executor.submit(headingRun);
+//        
+//        Runnable sounderRun = () -> {
+//            sounderSentences.add(sounder.testRead2());
+//        };
+//        executor.submit(sounderRun);
+//        try {
+//            Thread.sleep(10 * 1000);
+//        } catch (InterruptedException ex) {
+//            Logger.getLogger(Nema0183_aggregator.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+        executor.shutdown();
+        try {
+            executor.awaitTermination(1 * 10000, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+        }
+//        for (int i = 0 ; i < 5 ; i++) {
+        if (!(gpsSentences.isEmpty()) ) {
+            String line = gpsSentences.removeFirst();
+            System.out.println(line);
+            output.testWrite(line);
+        }
+//        try {
+//            Thread.sleep(2 * 1000);
+//        } catch (InterruptedException ex) {
+//            Logger.getLogger(Nema0183_aggregator.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+    }
 //        for (int i = 0 ; i > 100 ; i++) {
-        while (true) {
-            String line = gps.testRead2();
-            sentences.add(line);
-            gps.changePort("COM41", 115200, false);
-            gps.testWrite(line);
-            
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Nema0183_aggregator.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            for (int i = 0 ; (i < 8) && (!line.startsWith("$GPGLL")) ; i++ ) {
-                gps.changePort("COM32", 4800, true);
-                line = gps.testRead2();
-                sentences.add(line);
-                gps.changePort("COM41", 115200, false);
-                gps.testWrite(line);
-    //            System.out.print(line);
-    //            line = gps.testRead2();
-    //            System.out.print(line);
-    //            sentences.add(line);
-
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(Nema0183_aggregator.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            gps.changePort("COM39", 4800, false);
-            line = gps.testRead2();
-            sentences.add(line);
-            gps.changePort("COM41", 115200, false);
-            gps.testWrite(line);
-            
+//        while (true) {
+//            String line = gps.testRead2();
+//            gpsSentences.add(line);
+//            gps.changePort("COM41", 115200, false);
+//            gps.testWrite(line);
+//            
+//            try {
+//                Thread.sleep(500);
+//            } catch (InterruptedException ex) {
+//                Logger.getLogger(Nema0183_aggregator.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//            for (int i = 0 ; (i < 8) && (!line.startsWith("$GPGLL")) ; i++ ) {
+//                gps.changePort("COM32", 4800, true);
+//                line = gps.testRead2();
+//                sentences.add(line);
+//                gps.changePort("COM41", 115200, false);
+//                gps.testWrite(line);
+//            System.out.print(line);
+//            line = gps.testRead2();
+//            System.out.print(line);
+//            sentences.add(line);
+//
+//                try {
+//                    Thread.sleep(500);
+//                } catch (InterruptedException ex) {
+//                    Logger.getLogger(Nema0183_aggregator.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//            }
+//            gps.changePort("COM39", 4800, false);
+//            line = gps.testRead2();
+//            sentences.add(line);
+//            gps.changePort("COM41", 115200, false);
+//            gps.testWrite(line);
+//            
 //            try {
 //                Thread.sleep(500);
 //            } catch (InterruptedException ex) {
@@ -90,13 +144,13 @@ public class Nema0183_aggregator {
 //            for (String line2 : sentences) {
 //                line2 = gps.testRead2();
 //            }
-            
-            gps.changePort("COM32", 4800, true);
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Nema0183_aggregator.class.getName()).log(Level.SEVERE, null, ex);
-            }
+//            
+//            gps.changePort("COM32", 4800, true);
+//            try {
+//                Thread.sleep(500);
+//            } catch (InterruptedException ex) {
+//                Logger.getLogger(Nema0183_aggregator.class.getName()).log(Level.SEVERE, null, ex);
+//            }
 //                    sentences.removeFirst() );
 //            
 //            try {
@@ -134,13 +188,11 @@ public class Nema0183_aggregator {
 //            } catch (InterruptedException ex) {
 //                Logger.getLogger(Nema0183_aggregator.class.getName()).log(Level.SEVERE, null, ex);
 //            }
-        }
 //        ArrayList<String> portList = gps.findPort();
         
 //        System.out.println("Ports: ");
 //        portList.forEach(str -> {
 //            System.out.println(str);
 //        });
-    }
-    
+//    }
 }
