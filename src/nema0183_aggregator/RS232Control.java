@@ -1,7 +1,18 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2021 Ian Van Schaick
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package nema0183_aggregator;
 
@@ -16,7 +27,7 @@ import static nema0183_aggregator.RS232Control.serialPort;
  *
  * @author Ian Van Schaick
  */
-public class RS232Control {
+public class RS232Control implements Runnable {
 
     static SerialPort serialPort;
     String portName;
@@ -24,7 +35,7 @@ public class RS232Control {
     StringBuilder message;
     Boolean receivingMessage;
     SerialPortReader reader;
-    String readLine;
+    volatile String readLine;
     Boolean acknowledge;
     int baud;
     boolean gpsData;
@@ -203,7 +214,7 @@ public class RS232Control {
      *
      * @return Returns the byte array read from the serial port.
      */
-    protected synchronized String testRead2() {
+    protected String testRead2() {
         String line = "";
         ArrayList <String> readList = new ArrayList <String> ();
         boolean lineFin = false;
@@ -211,7 +222,7 @@ public class RS232Control {
             try {
                 //            byte [] tempArray = null;
                 //                readList.add(serialPort.readBytes(8) );
-                line =  line + serialPort.readString(1);
+                line =  line + serialPort.readString(20);
             } catch (SerialPortException ex) {
                 Logger.getLogger(RS232Control.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -222,6 +233,8 @@ public class RS232Control {
             line = gpsUpdate.dateUpdate(line);
         }
     }
+        readLine = line;
+        System.out.println("tesstRead2: " + readLine);
         return line;
     }
     
@@ -265,7 +278,35 @@ public class RS232Control {
         }
         return success;
     }
+    
+    protected synchronized String getLine () {
+//        System.out.println("GetLine: " + readLine);
+        return readLine;
+    }
+
+    @Override
+    public void run() {
+        while (true) {
+            testRead2();
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(RS232Control.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        
+    }
+    
+//    class getCurLine extends Thread {
+//     @Override
+//    public void run() {
+//        String line = readLine;
+//        System.out.println("GetLineClass: " + readLine);
+//    }
+//}
 } // End of RS232Control class
+
+
 
 /**
  * In this class must implement the method serialEvent, through it we learn
