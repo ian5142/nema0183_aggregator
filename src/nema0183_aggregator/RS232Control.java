@@ -41,7 +41,7 @@ public class RS232Control implements Runnable {
     boolean gpsData;
     NEMADateUpdate gpsUpdate;
     String lineSep;
-
+    
     /**
      * 
      * @param portNum
@@ -132,12 +132,6 @@ public class RS232Control implements Runnable {
         portName = portNum;
         baud = portbaud;
         serialPort = new SerialPort(portName);
-        message = new StringBuilder();
-        receivingMessage = false;
-        reader = new SerialPortReader();
-        readLine = "";
-        acknowledge = false;
-        lineSep = System.getProperty("line.separator");
         openP();
     }
     
@@ -182,6 +176,20 @@ public class RS232Control implements Runnable {
         return success;
     }
     
+    protected void pulseDTR () {
+        try {
+//            openP();
+            serialPort.setDTR(true);
+            Thread.sleep(10);
+            serialPort.setDTR(false);
+            close();
+        } catch (SerialPortException ex) {
+            Logger.getLogger(RS232Control.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(RS232Control.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
     /**
      * Opens the serial port. Tries to read a string from the serial port.
      * Closes the serial port.
@@ -222,7 +230,7 @@ public class RS232Control implements Runnable {
             try {
                 //            byte [] tempArray = null;
                 //                readList.add(serialPort.readBytes(8) );
-                line =  line + serialPort.readString(20);
+                line =  line + serialPort.readString(8);
             } catch (SerialPortException ex) {
                 Logger.getLogger(RS232Control.class.getName()).log(Level.SEVERE, null, ex);
             }
